@@ -96,3 +96,11 @@ def logout():
     session.pop('logged_in', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
+
+if __name__ == '__main__':
+    #init_db() 
+    # Uncommenting the above line will make the server reinitialise the db each time it's run,
+    # removing any previous records, leave commented for a persistent DB
+    
+    app.run(host='0.0.0.0', port=80, debug=True)  # Make server publicly available on port 80
+    #app.run() # Make the server only available locally on port 5000 (127.0.0.1:5000)
