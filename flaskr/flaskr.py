@@ -90,7 +90,7 @@ def logout():
     return redirect(url_for('show_entries'))
 
 if __name__ == '__main__':
-    #init_db() 
+    init_db() 
     # Uncommenting the above line will make the server reinitialise the db each time it's run,
     # removing any previous records, leave commented for a persistent DB
     
