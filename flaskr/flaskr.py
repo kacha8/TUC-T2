@@ -26,7 +26,7 @@ def connect_db():
 
 
 def init_db():
-    """Initializes the database."""
+	"""Initializes the database."""
 	with app.app_context():
 		db = get_db()
 		with app.open_resource('schema.sql', mode='r') as f:
