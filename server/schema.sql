@@ -1,9 +1,6 @@
-drop table if exists records;
-create table records (
+drop table if exists entries;
+create table entries (
   id integer primary key autoincrement,
-  time_stamp text,
-  device_ID text not null,
-  team_code text not null,
-  team_name text not null,
-  device_reading text not null
+  title text not null,
+  text text not null
 );
