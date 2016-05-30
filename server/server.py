@@ -1,21 +1,22 @@
+#IMPORTS
 from sqlite3 import dbapi2 as sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify, make_response, Response, current_app
 import json, datetime, os
 from functools import wraps
 
-# create our little application :)
+# MAKING THE APP
 app = Flask(__name__)
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
-    DATABASE=os.path.join(os.path.dirname(os.path.realpath(__file__)), "flaskr.db"),
+    DATABASE=os.path.join(os.path.dirname(os.path.realpath(__file__)), "database.db"),
     DEBUG=True,
     SECRET_KEY='development key',
     USERNAME='admin',
-    PASSWORD='default'
+    PASSWORD='password'
 ))
-app.config.from_envvar('FLASKR_SETTINGS', silent=True)
+app.config.from_envvar('SERVER_SETTINGS', silent=True)
 
 
 def connect_db():

@@ -1,0 +1,74 @@
+/*DEFAULT*/
+body
+{
+	font-family: sans-serif;
+	background: rgb(240,240,240);
+}
+
+h2
+{
+	font: "Helvetica";
+	color: white;
+	font-size: 25pt;
+}
+
+/*FOR LARGER SCREENS*/
+@media (min-width: 1000px)
+{
+	h2
+	{
+		margin: 0 0 0 0;
+	}
+}
+
+/*LAYOUT*/
+.layout-transparent 
+{
+	background: url('https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-305703.jpg') center / cover;
+}
+.layout-transparent .mdl-layout__header,
+.layout-transparent .mdl-layout__drawer-button 
+{
+	/* This background is dark, so we set text to white. Use 87% black instead if
+	your background is light. */
+	color: white;
+}
+
+main
+{
+	padding-left: 5em;
+}
+
+/*CARDS*/
+#mappingApp, #navigationApp, #clientApp
+{
+	margin: 30px 10px 0 10px;
+}
+
+.card-square.mdl-card
+{
+	width: 320px;
+	height: 320px;
+}
+#mappingApp > .card-square > .mdl-card__title
+{
+	color: #fff;
+	background:
+	url('https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-368107.jpg') bottom right no-repeat #46B6AC;
+	background-size: 100%;
+
+}
+#navigationApp > .card-square > .mdl-card__title
+{
+	color: #fff;
+	background:
+	url('https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-228571.jpg') bottom right no-repeat #46B6AC;
+	background-size: 100%;
+}
+#clientApp > .card-square > .mdl-card__title
+{
+	color: #fff;
+	background:
+	url('https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-156713.jpg') bottom right no-repeat #46B6AC;
+	background-size: 100%;
+}
