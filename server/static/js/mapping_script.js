@@ -59,7 +59,7 @@ function initMap() {
     gridPolyy.setMap(map);
 
     var image = {
-        url: 'css/images/currentPosIcon.png', 
+        url: '../css/images/currentPosIcon.png', 
         size: new google.maps.Size(20,20),
         origin: new google.maps.Point(0,0),
         anchor: new google.maps.Point(10,10)
@@ -106,7 +106,7 @@ function startTracking(){
 	    window.setInterval(function(){
 	        navigator.geolocation.getCurrentPosition(showCurrentLocation, errorHandler, positionOptions);
 	    }, 5000);
-	    map.setCenter({lat: currentPos.coords.latitude, lng: currentPos.coords.longitude});
+	    
 	}else{
 	    $('.gpsValue').hide();
 	}
@@ -135,6 +135,7 @@ function showCurrentLocation(position)
     console.log([position.coords.latitude,position.coords.longitude,position.timestamp,position.coords.accuracy]);  
         
     currentPos.setPosition({lat: position.coords.latitude, lng: position.coords.longitude});
+    map.setCenter(currentPos.position);
 }
 
 
