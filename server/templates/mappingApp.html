@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-	<title>MAPPING</title>
+	<title>OTCV</title>
 	<meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -38,7 +38,9 @@
     <div id = "welcome" data-role = "page">
         <label id = "welcomeLabel" data-role = "none">Welcome to<br/>Off the Couch Vouch</label>
 
-        <script>$(document).ready(function(){document.getElementById("startButton").removeAttribute("disabled")});</script>
+        <script>
+            $(document).ready(function(){document.getElementById("startButton").removeAttribute("disabled");});
+        </script>
 
         <button id="startButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled onClick = "window.location.href='#mainApp'" data-role = "none">
             Get Started
@@ -47,10 +49,40 @@
     </div>
 
 	<div id="mainApp" class="page" data-role = "page">
-    	<h2>Deals Space</h2>
-    	<div id="map"></div>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                <!-- Title -->
+                    <span class="mdl-layout-title">Off the Couch Vouch</span>
+                </div>
+            </header>
+            <div class="mdl-layout__drawer">
+                <span class="mdl-layout-title">Off the Couch Vouch</span>
+                <nav class="mdl-navigation">
+                    <a class="mdl-navigation__link" href="">About</a>
+                    <a class="mdl-navigation__link" href="">Preferences</a>
+                    <a class="mdl-navigation__link" href="">Vouchers</a>
+                    <a class="mdl-navigation__link" href="">Settings</a>
+                </nav>
+            </div>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div id = "activate" data-role = "none" onClick="startTracking()">
+                        <label>Tap to activate location</label>
+                        <img src="../static/css/images/location_services.png">
+                    </div>
+                    <div id="map"></div>
+                    
+
+
+
+
+                </div>
+            </main>
+        </div>
+    	
 	</div>
     <div data-role = "page">
-
+        <div id="map"></div>
     </div>
 </body>

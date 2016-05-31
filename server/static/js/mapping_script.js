@@ -9,6 +9,8 @@ var gridPolyx;
 var gridPathy = [];
 var gridPolyy;
 
+var currentPos;
+
 function loadSettings(){
 	var inPath;
 
@@ -56,16 +58,26 @@ function initMap() {
     });
     gridPolyy.setMap(map);
 
+    var image = {
+        url: 'css/images/currentPosIcon.png', 
+        size: new google.maps.Size(20,20),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(10,10)
+    };
+
+    currentPos = new google.maps.Marker({
+	    title: 'Current Position',
+	    map: map,
+	    icon: image
+    });
+
     bounds = new google.maps.LatLngBounds();
 
 	google.maps.event.addListenerOnce(map, 'idle', function(){
 	    loadSettings();
 	});
 
-
 }
-
-
 
  window.setInterval(function(){
         updater();
@@ -76,6 +88,57 @@ function updater()
 
 
 }
+
+var positionOptions = {
+        enableHighAccuracy: true,
+        timeout: 5000, 
+        maximumAge: 0
+    };
+function startTracking(){
+    var evt = document.createEvent('UIEvents');
+    evt.initUIEvent('resize', true, false,window,0);
+    window.dispatchEvent(evt);
+    console.log("map reload");
+
+	$("#activate")[0].style.zIndex = -3;
+	if (navigator.geolocation){     
+	    $('.gpsError').hide();
+	    window.setInterval(function(){
+	        navigator.geolocation.getCurrentPosition(showCurrentLocation, errorHandler, positionOptions);
+	    }, 5000);
+	    map.setCenter({lat: currentPos.coords.latitude, lng: currentPos.coords.longitude});
+	}else{
+	    $('.gpsValue').hide();
+	}
+}
+function errorHandler(error)
+{
+    if(error.code == 0){
+        console.log("Unknown error");
+    }
+    if(error.code == 1){
+        console.log("Access denied by user");
+    }
+
+    if(error.code == 2){ 
+        console.log("Position unavailable");
+    }
+
+    if(error.code == 3){
+        console.log("Timed out");
+    }
+}
+
+
+function showCurrentLocation(position)
+{
+    console.log([position.coords.latitude,position.coords.longitude,position.timestamp,position.coords.accuracy]);  
+        
+    currentPos.setPosition({lat: position.coords.latitude, lng: position.coords.longitude});
+}
+
+
+
 
 function rootFinder(fof,target,initial,eps,changeIndexes){
 	var fval = fof(...initial);

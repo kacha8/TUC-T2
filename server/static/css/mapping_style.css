@@ -8,6 +8,10 @@
 	background: rgb(240,240,240);
 }
 
+.mdl-layout__header-row{
+
+}
+
 img
 {
     position: absolute;
@@ -38,6 +42,32 @@ img
 	margin: auto;
 }
 
+#activate > label
+{
+	color: white;
+	margin: 20vh 0 0 0;
+	line-height: 15vw;
+	text-align: center;
+	font-size: 10vw;
+	font-family: sans-serif;
+
+}
+
+#activate
+{
+	background-color: rgb(10,10,10);
+	height: 100vh;
+	position: fixed;
+	z-index: 100;
+	width: 100vw;
+}
+
+#activate > img
+{
+	width:50vw;
+	height:auto;
+}
+
 h2
 {
 	font: "Helvetica";
@@ -47,13 +77,14 @@ h2
 
 #map
 {
-	height: 80%;
+	height: calc(100vh - 56px);
+	z-index: 0;
 }
 
 /*FOR LARGER SCREENS*/
 @media (min-width: 700px)
 {
-#welcomeLabel
+	#welcomeLabel
 	{
 		margin: 10vh 0 0 0;
 		line-height: 15vw;
@@ -63,3 +94,23 @@ h2
 	}
 }
 
+@media (min-width: 500px)
+{
+	#activate > label
+	{
+		color: white;
+		margin: 10vh 0 0 0;
+		line-height: 10vw;
+		text-align: center;
+		font-size: 5vw;
+		font-family: sans-serif;
+
+	}
+
+	#activate > img
+	{
+		width:30vw;
+		height:auto;
+	}
+
+}
