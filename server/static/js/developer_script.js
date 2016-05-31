@@ -1,30 +1,16 @@
 var map;
 var bounds;
 
+var setROUTE = true;
 var setPATH = [];
+var setROUTEmarkers = [];
 var setPoly;
 
 var gridPathx = [];
 var gridPolyx;
 var gridPathy = [];
 var gridPolyy;
-
-function loadSettings(){
-	var inPath;
-
-	//for test purposes
-	//server is meant to supply settings
-	inPath = [{lat: -37.821243049087585, lng: 144.9550724029541}, {lat: -37.815276404447616, lng: 144.97485637664795}, {lat: -37.80735958333689, lng: 144.97103207480086}, {lat: -37.81332959775782, lng: 144.95122646073673},{lat: -37.821243049087585, lng: 144.9550724029541}];
-	
-
-	for(i=0; i<inPath.length; i++){
-		setPATH.push(new google.maps.LatLng(inPath[i]));
-
-	}	
-	setPoly.setPath(setPATH);
-
-	generateGrid();
-}
+var probe;
 
 function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -56,25 +42,129 @@ function initMap() {
     });
     gridPolyy.setMap(map);
 
+	probe = new google.maps.Marker({
+        position: {lat: -37.814205129899264, lng: 144.96328043060305},
+        map: map,
+        draggable: true
+      });
+
+	probe.addListener('rightclick', probing);
+
     bounds = new google.maps.LatLngBounds();
 
-	google.maps.event.addListenerOnce(map, 'idle', function(){
-	    loadSettings();
-	});
-
-
+	map.addListener('click', addLatLng);
 }
-
-
 
  window.setInterval(function(){
         updater();
     }, 10);
 
+
+ function probing(event){
+ 	console.log(LATLNGtolatlng(probe.position));
+
+ 	console.log(tileNo(probe.position));
+
+ }
+
 function updater()
 {
+    if(setROUTE === true){
+        setPATH = [];
+        for(i=0; i<setROUTEmarkers.length; i++){
+            var pos = setROUTEmarkers[i].position;
+            setPATH.push(pos);
+            bounds.extend(pos);
+        }
+
+        if(setROUTEmarkers.length>1){
+	        setPATH.push(setROUTEmarkers[0].position);
+            setPoly.setPath(setPATH);
+        }
+    }
+}
+
+function addLatLng(event) 
+{
+	if(setROUTEmarkers.length <= 1){
+	    setROUTEmarkers.push(
+	      marker = new google.maps.Marker({
+	        position: event.latLng,
+	        map: map,
+	        draggable: true
+	      })
+	    );
+	    marker.addListener('click', byeMarker);
+	    bounds.extend(event.latLng);
+	}else if(setROUTEmarkers.length == 2){
+		var bearing = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[1].position);
+		console.log(bearing);
+		var newbearing = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,event.latLng);
 
 
+		if((newbearing<bearing && newbearing > bearing -180)){
+			var nxtbearing = - 90;
+		}else{
+			var nxtbearing = + 90;
+		}
+
+
+		var odist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, setROUTEmarkers[0].position)/1000;
+
+		var dist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, event.latLng)/1000;
+
+		setROUTEmarkers.push(
+			marker = new google.maps.Marker({
+				position: pointFromBearingAndDistance(LATLNGtolatlng(setROUTEmarkers[1].position),bearing + nxtbearing,dist),
+				map: map,
+				draggable: false,
+				icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+	      	})
+	    );
+		marker.addListener('click', byeMarker);
+		setROUTEmarkers.push(
+			marker = new google.maps.Marker({
+				position: pointFromBearingAndDistance(LATLNGtolatlng(setROUTEmarkers[2].position),bearing + 2*nxtbearing,odist),
+				map: map,
+				draggable: false,
+				icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+			})
+		);
+
+		for(i=0; i<setROUTEmarkers.length; i++){
+			console.log(LATLNGtolatlng(setROUTEmarkers[i].position));
+		}
+
+		marker.addListener('click', byeMarker);
+	    bounds.extend(event.latLng);
+	}else if(setROUTEmarkers.length>2){
+		for(i=2; i<4; i++){
+			var marker = setROUTEmarkers[2];
+			marker.setMap(null);
+			marker = null;
+			setROUTEmarkers.splice(2,1);
+	    }
+		map.fitBounds(bounds);
+		gridPathx = [];
+		gridPolyx;
+		gridPathy = [];
+		gridPolyy;
+		gridPolyx.setPath(gridPathx);
+		gridPolyy.setPath(gridPathy);
+    }
+}
+
+
+function byeMarker(event)
+{
+  for(i=0; i<setROUTEmarkers.length; i++){
+    if(setROUTEmarkers[i].position==event.latLng){
+      var marker = setROUTEmarkers[i];
+      marker.setMap(null);
+      marker = null;
+      setROUTEmarkers.splice(i,1);
+    }
+  }
 }
 
 function rootFinder(fof,target,initial,eps,changeIndexes){
@@ -188,17 +278,17 @@ function generateGrid(){
 	gridPolyx.setPath(gridPathx);
 	gridPolyy.setPath(gridPathy);
 
-	var bearingx = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[1]);
-	var bearingx2 = google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[0]);
-	var bearingy = google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[2]);
-	var bearingy2 = google.maps.geometry.spherical.computeHeading(setPATH[2],setPATH[1]);
-	var odist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[1], setPATH[0])/1000;
-	var hdist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[1], setPATH[2])/1000;
+	var bearingx = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[1].position);
+	var bearingx2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,setROUTEmarkers[0].position);
+	var bearingy = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,setROUTEmarkers[2].position);
+	var bearingy2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[2].position,setROUTEmarkers[1].position);
+	var odist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, setROUTEmarkers[0].position)/1000;
+	var hdist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, setROUTEmarkers[2].position)/1000;
 	var newpt;
-	var oldpt =  LATLNGtolatlng(setPATH[0]);
+	var oldpt =  LATLNGtolatlng(setROUTEmarkers[0].position);
 	var flip = true;
 
-	gridPathx.push(setPATH[0]);
+	gridPathx.push(setROUTEmarkers[0].position);
 	var gridWidth = 0;
 	while(gridWidth<odist-0.01){
 		newpt = pointFromBearingAndDistance(oldpt,bearingx,0.010);
@@ -217,8 +307,8 @@ function generateGrid(){
 	}
 	gridPolyx.setPath(gridPathx);
 	
-	gridPathy.push(setPATH[0]);
-	var oldpt =  LATLNGtolatlng(setPATH[0]);
+	gridPathy.push(setROUTEmarkers[0].position);
+	var oldpt =  LATLNGtolatlng(setROUTEmarkers[0].position);
 	var flip = true;
 	var gridWidth = 0;
 	while(gridWidth<hdist-0.01){
@@ -242,19 +332,19 @@ function generateGrid(){
 }
 
 function tileNo(pos){
-	var bearingx = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[1]);
-	var bearingy = google.maps.geometry.spherical.computeHeading(setPATH[3],setPATH[0]);
-	var bearingx2 = google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[0]);
-	var bearingy2 = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[3]);
+	var bearingx = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[1].position);
+	var bearingy = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[3].position,setROUTEmarkers[0].position);
+	var bearingx2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,setROUTEmarkers[0].position);
+	var bearingy2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[3].position);
 
-	var xint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingy, LATLNGtolatlng(setPATH[0]), bearingx);
+	var xint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingy, LATLNGtolatlng(setROUTEmarkers[0].position), bearingx);
 	console.log(xint);
 
-	var yint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingx2, LATLNGtolatlng(setPATH[0]), bearingy2);
+	var yint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingx2, LATLNGtolatlng(setROUTEmarkers[0].position), bearingy2);
 	console.log(yint);
 
-	var xdist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[0], new google.maps.LatLng(xint))/1000;
-	var ydist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[0], new google.maps.LatLng(yint))/1000;
+	var xdist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[0].position, new google.maps.LatLng(xint))/1000;
+	var ydist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[0].position, new google.maps.LatLng(yint))/1000;
 
 	var xNo = Math.ceil(xdist/0.01);
 	var yNo = Math.ceil(ydist/0.01);

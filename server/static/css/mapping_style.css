@@ -8,6 +8,36 @@
 	background: rgb(240,240,240);
 }
 
+img
+{
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#welcomeLabel
+{
+	margin: 30vh 0 0 0;
+	line-height: 20vw;
+	text-align: center;
+	font-size: 16vw;
+	font-family: sans-serif;
+}
+
+#startButton
+{
+	position: absolute;
+	bottom: 20%;
+	height: 10%;
+	width: 50%;
+	left: 25%;
+    right: 25%;
+	margin: auto;
+}
+
 h2
 {
 	font: "Helvetica";
@@ -21,11 +51,15 @@ h2
 }
 
 /*FOR LARGER SCREENS*/
-@media (min-width: 1000px)
+@media (min-width: 700px)
 {
-	h2
+#welcomeLabel
 	{
-		margin: 0 0 0 0;
+		margin: 10vh 0 0 0;
+		line-height: 15vw;
+		text-align: center;
+		font-size: 10vw;
+		font-family: sans-serif;
 	}
 }
 
