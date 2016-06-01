@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-	<title>client</title>
+	<title>VouchSpace</title>
 	<meta charset="utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -31,11 +31,57 @@
     async defer></script>
 </head>
 <body>
-	<div class="page" data-role = "page">
-    	<h2>Developer Options</h2>
-    	<label>Open console to view probe outputs</label>
-    	<div id="map"></div>
-    	<button onClick='generateGrid()'>Generate Grid</button>
-    	<button onClick = "window.location.href='index.html'">Return to index page</button>
-	</div>
+    <div data-role = "page" onClick = "window.location.href='#welcome'">
+        <img src="../static/css/images/Fizzi_Digi.png">
+    </div>
+
+    <div id = "welcome" data-role = "page">
+        <label id = "welcomeLabel" data-role = "none">Welcome to<br/>VouchSpace</label>
+
+        <script>
+            $(document).ready(function(){document.getElementById("nextButton").removeAttribute("disabled");});
+        </script>
+
+        <button id="nextButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled onClick = "window.location.href='#mainApp'" data-role = "none">
+            Next
+        </button>
+
+    </div>
+
+    <div id="mainApp" class="page" data-role = "page">
+
+
+        <div id = "activate" data-role = "none">
+            <label>Please enter business name:</label>
+            <!-- Company name -->
+            <form action="#">
+                <div class="mdl-textfield mdl-js-textfield">
+                    <input type="text" id="companyNameField" oninput="checkText()">
+                </div>
+            </form>
+            <button id="startButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled onClick = "getStarted()" data-role = "none">
+                Get Started
+            </button>
+        </div>
+        <div>
+            <h1>VouchSpace</h1>
+
+            <div class="mdl-grid">
+                <div class="mdl-cell mdl-cell--8-col">
+                    <div id="map"></div>
+                </div>
+                <div class="mdl-cell mdl-cell--4-col">
+                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(204,102,102);">
+                        <img src="../static/css/images/foodIcon.png" style = "height:50px; width:auto;">
+                    </button>
+                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(37,37,37);">
+                        <img src="../static/css/images/movieIcon.png" style = "height:35px; width:auto;">
+                    </button>
+                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(244,154,193);">
+                        <img src="../static/css/images/handbagIcon.png" style = "height:35px; width:auto;">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>

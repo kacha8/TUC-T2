@@ -8,24 +8,113 @@
 	background: rgb(240,240,240);
 }
 
-h2
+img
+{
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+#welcomeLabel
+{
+	margin: 30vh 0 0 0;
+	line-height: 20vw;
+	text-align: center;
+	font-size: 16vw;
+	font-family: sans-serif;
+}
+
+#startButton
+{
+	position: absolute;
+	bottom: 20%;
+	height: 10%;
+	width: 50%;
+	left: 25%;
+    right: 25%;
+	margin: auto;
+}
+
+h1
 {
 	font: "Helvetica";
-	color: white;
-	font-size: 25pt;
+	color: rgb(50,50,50);
+	font-size: 5vh;
+	margin-left: 5vw;
 }
 
 #map
 {
-	height: 80%;
+	height: calc(80vh - 56px);
+	z-index: 0;
+	width: auto;
+}
+
+.mdl-cell--4-col
+{
+	background-color: rgb(50,50,50);
+}
+
+#activate
+{
+	background-color: rgb(250,250,250);
+	height: 100vh;
+	position: fixed;
+	z-index: 100;
+	width: 100vw;
+	margin: 0 auto;
+	margin-left: auto;
+	margin-right: auto;
+	text-align:center;
+}
+
+#activate > label
+{
+	color: rgb(50,50,50);
+	margin: 20vh 0 0 0;
+	line-height: 15vw;
+	text-align: center;
+	font-size: 10vw;
+	font-family: sans-serif;
+}
+
+#companyNameField
+{
+	text-align:center;
 }
 
 /*FOR LARGER SCREENS*/
-@media (min-width: 1000px)
+@media (min-width: 700px)
 {
-	h2
+	#welcomeLabel
 	{
-		margin: 0 0 0 0;
+		margin: 10vh 0 0 0;
+		line-height: 15vw;
+		text-align: center;
+		font-size: 10vw;
+		font-family: sans-serif;
 	}
 }
 
+@media (min-width: 500px)
+{
+	#activate > label
+	{
+		margin: 10vh 0 0 0;
+		line-height: 10vw;
+		text-align: center;
+		font-size: 5vw;
+		font-family: sans-serif;
+
+	}
+
+	#activate > img
+	{
+		width:30vw;
+		height:auto;
+	}
+
+}

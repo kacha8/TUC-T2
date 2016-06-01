@@ -1,3 +1,23 @@
+
+//APP FUNCTIONS
+function getStarted(){
+	$("#activate")[0].style.zIndex = -10;
+    var evt = document.createEvent('UIEvents');
+    evt.initUIEvent('resize', true, false,window,0);
+    window.dispatchEvent(evt);
+    console.log("map reload");
+}
+
+function checkText(){
+	if($("#companyNameField")[0].value == ""){
+		$('#startButton')[0].setAttribute("disabled")
+	}else{
+		$('#startButton')[0].removeAttribute("disabled")
+	}
+}
+
+
+//MAP FUNCTIONS
 var map;
 var bounds;
 
@@ -25,6 +45,7 @@ function loadSettings(){
 
 	generateGrid();
 }
+
 
 function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -61,7 +82,6 @@ function initMap() {
 	google.maps.event.addListenerOnce(map, 'idle', function(){
 	    loadSettings();
 	});
-
 
 }
 

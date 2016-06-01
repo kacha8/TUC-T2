@@ -8,8 +8,11 @@
 	background: rgb(240,240,240);
 }
 
-.mdl-layout__header-row{
-
+#companyNameField
+{
+	margin: 0 auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 img
@@ -50,7 +53,6 @@ img
 	text-align: center;
 	font-size: 10vw;
 	font-family: sans-serif;
-
 }
 
 #activate
@@ -60,6 +62,9 @@ img
 	position: fixed;
 	z-index: 100;
 	width: 100vw;
+	margin: 0 auto;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #activate > img
