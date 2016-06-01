@@ -11,22 +11,110 @@ var gridPolyy;
 
 var currentPos;
 
+var shoppingPins = [];
+var foodPins = [];
+var entertainmentPins = []
+var voucherTiles = [];
+
+function displayMessage(){
+    var data = {
+		message: 'You are on a voucher!!!',
+		timeout: 5000,
+		actionHandler: openTracker,
+		actionText: 'Claim'
+    };
+    $("#trackNow")[0].MaterialSnackbar.showSnackbar(data);
+}
+
+function openTracker() {
+	var currentTile = tileNo(currentPos.position);
+	var i = 0;
+	while(currentTile!=voucherTiles[i] && i<voucherTiles.length){
+		i++
+	}
+	if(currentTile==voucherTiles[i]){
+		window.location.href='#trackPage';
+	}
+
+
+}
+
 function loadSettings(){
-	var inPath;
+	var inPathSTR;
+	var shoppingPinsSTR;
+	var foodPinsSTR;
+	var entertainmentPinsSTR;
 
 	//for test purposes
 	//server is meant to supply settings
-	inPath = [{lat: -37.821243049087585, lng: 144.9550724029541}, {lat: -37.815276404447616, lng: 144.97485637664795}, {lat: -37.80735958333689, lng: 144.97103207480086}, {lat: -37.81332959775782, lng: 144.95122646073673},{lat: -37.821243049087585, lng: 144.9550724029541}];
-	
+	var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
+	var shoppingPinsSTR = '[{"lat":-37.816415846232616,"lng":144.9629259109497},{"lat":-37.810618336102884,"lng":144.9622392654419},{"lat":-37.810618336102884,"lng":144.9632692337036},{"lat":-37.80990632978781,"lng":144.9643850326538}]';
+	var foodPinsSTR = '[{"lat":-37.81482242390451,"lng":144.95829105377197},{"lat":-37.81756851328617,"lng":144.95726108551025},{"lat":-37.81716169167538,"lng":144.9659299850464},{"lat":-37.81702608397355,"lng":144.96468544006348},{"lat":-37.817466808093656,"lng":144.9640417098999},{"lat":-37.817670218338534,"lng":144.9633550643921}]';
+	var entertainmentPinsSTR = '[{"lat":-37.81316115975215,"lng":144.9634838104248},{"lat":-37.816042920685355,"lng":144.9607801437378},{"lat":-37.81231356159958,"lng":144.96798992156982},{"lat":-37.813296774553564,"lng":144.96949195861816},{"lat":-37.81339848549114,"lng":144.97073650360107},{"lat":-37.814347780818274,"lng":144.9718952178955}]';
+
+
+	var inPath = JSON.parse(inPathSTR);
+	shoppingPins = JSON.parse(shoppingPinsSTR);
+	foodPins = JSON.parse(foodPinsSTR);
+	entertainmentPins = JSON.parse(entertainmentPinsSTR);
+		
 
 	for(i=0; i<inPath.length; i++){
 		setPATH.push(new google.maps.LatLng(inPath[i]));
-
-	}	
+	};	
 	setPoly.setPath(setPATH);
 
 	generateGrid();
+
+	visibleVouchers();
+
 }
+
+function visibleVouchers() {
+	for(i=0; i<shoppingPins.length; i++){
+		marker = new google.maps.Marker({
+				position: shoppingPins[i],
+				map: map,
+				icon: {
+			        url: '../static/css/images/handbagPin.png', 
+			        scaledSize: new google.maps.Size(40,40),
+			        origin: new google.maps.Point(0,0),
+			        anchor: new google.maps.Point(20,40)
+					}
+
+				});
+		voucherTiles.push(tileNo(new google.maps.LatLng(shoppingPins[i])));
+	};
+	for(i=0; i<foodPins.length; i++){
+		marker = new google.maps.Marker({
+				position: foodPins[i],
+				map: map,
+				icon: {
+			        url: '../static/css/images/foodPin.png', 
+			        scaledSize: new google.maps.Size(40,40),
+			        origin: new google.maps.Point(0,0),
+			        anchor: new google.maps.Point(20,40)
+					}
+
+				});
+		voucherTiles.push(tileNo(new google.maps.LatLng(foodPins[i])));
+	};
+	for(i=0; i<entertainmentPins.length; i++){
+		marker = new google.maps.Marker({
+				position: entertainmentPins[i],
+				map: map,
+				icon: {
+			        url: '../static/css/images/moviePin.png', 
+			        scaledSize: new google.maps.Size(40,40),
+			        origin: new google.maps.Point(0,0),
+			        anchor: new google.maps.Point(20,40)
+					}
+
+				});
+		voucherTiles.push(tileNo(new google.maps.LatLng(entertainmentPins[i])));
+	};
+}
+
 
 function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -34,11 +122,13 @@ function initMap() {
 		zoom: 15
 	});
 
-    setPoly = new google.maps.Polyline({
+    setPoly = new google.maps.Polygon({
         geodesic: true,
         strokeColor: "blue",
         strokeOpacity: 0.6,
-        strokeWeight: 4
+        strokeWeight: 4,
+        fillOpacity: 0,
+        clickable: false
     });
     setPoly.setMap(map);
 
@@ -69,6 +159,10 @@ function initMap() {
 	    title: 'Current Position',
 	    map: map,
 	    icon: image
+
+	    //for debugging
+	    ,draggable: true,
+	    position: {lat: -37.814205129899264, lng: 144.96328043060305}
     });
 
     bounds = new google.maps.LatLngBounds();
@@ -79,13 +173,17 @@ function initMap() {
 
 }
 
- window.setInterval(function(){
-        updater();
-    }, 10);
 
 function updater()
 {
-
+	var i = 0;
+	while(tileNo(currentPos.position)!=voucherTiles[i] && i<voucherTiles.length){
+		i++
+	}
+	if(tileNo(currentPos.position)==voucherTiles[i]){
+		displayMessage();
+	}
+	
 
 }
 
@@ -110,6 +208,11 @@ function startTracking(){
 	}else{
 	    $('.gpsValue').hide();
 	}
+
+	window.setInterval(function(){
+        updater();
+    }, 5000);
+
 }
 function errorHandler(error)
 {
@@ -312,10 +415,8 @@ function tileNo(pos){
 	var bearingy2 = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[3]);
 
 	var xint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingy, LATLNGtolatlng(setPATH[0]), bearingx);
-	console.log(xint);
 
 	var yint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingx2, LATLNGtolatlng(setPATH[0]), bearingy2);
-	console.log(yint);
 
 	var xdist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[0], new google.maps.LatLng(xint))/1000;
 	var ydist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[0], new google.maps.LatLng(yint))/1000;

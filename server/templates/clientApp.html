@@ -54,7 +54,7 @@
         <div id = "activate" data-role = "none">
             <label>Please enter business name:</label>
             <!-- Company name -->
-            <form action="#">
+            <form action="getStarted()">
                 <div class="mdl-textfield mdl-js-textfield">
                     <input type="text" id="companyNameField" oninput="checkText()">
                 </div>
@@ -65,22 +65,46 @@
         </div>
         <div>
             <h1>VouchSpace</h1>
+            <label style = "margin-left: 5vw;">Welcome <span id="companyNameLabel"></span>.</label>
+
 
             <div class="mdl-grid">
-                <div class="mdl-cell mdl-cell--8-col">
+                <div class="mdl-cell mdl-cell--8-col" style = "position: relative;">
+                    <button id="cart" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" onclick="displayMessage()">
+                        <i class="material-icons">shopping_cart</i>
+                    </button>
                     <div id="map"></div>
                 </div>
                 <div class="mdl-cell mdl-cell--4-col">
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(204,102,102);">
+                    
+                    <label>Please select the voucher type:</label>
+
+                    <div>
+                    <button id="food" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(204,102,102);" onclick="setState('food')">
                         <img src="../static/css/images/foodIcon.png" style = "height:50px; width:auto;">
                     </button>
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(37,37,37);">
+                    <label>Food</label>
+                    </div>
+
+                    <div>
+                    <button  id="entertainment" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(37,37,37);" onclick="setState('entertainment')">
                         <img src="../static/css/images/movieIcon.png" style = "height:35px; width:auto;">
                     </button>
-                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(244,154,193);">
+                    <label>Entertainment</label>
+                    </div>
+
+                    <div>
+                    <button id="shopping" class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" data-role = "none" style ="background-color: rgb(244,154,193);" onclick="setState('shopping')">
                         <img src="../static/css/images/handbagIcon.png" style = "height:35px; width:auto;">
                     </button>
+                    <label>Shopping</label>
+                    </div>
+
                 </div>
+            </div>
+            <div id="purchaseComplete" class="mdl-js-snackbar mdl-snackbar" data-role = "none">
+                <div class="mdl-snackbar__text" data-role = "none"></div>
+                <button class="mdl-snackbar__action" type="button" data-role = "none"></button>
             </div>
         </div>
     </div>

@@ -27,7 +27,7 @@ img
 	font-family: sans-serif;
 }
 
-#startButton
+#startButton, #nextButton
 {
 	position: absolute;
 	bottom: 20%;
@@ -44,19 +44,16 @@ h1
 	color: rgb(50,50,50);
 	font-size: 5vh;
 	margin-left: 5vw;
+	margin-bottom: 0;
 }
 
 #map
 {
-	height: calc(80vh - 56px);
+	height: 60vh;
 	z-index: 0;
 	width: auto;
 }
 
-.mdl-cell--4-col
-{
-	background-color: rgb(50,50,50);
-}
 
 #activate
 {
@@ -84,6 +81,36 @@ h1
 #companyNameField
 {
 	text-align:center;
+}
+
+.mdl-cell--4-col div
+{
+	margin: 5px;
+	display: inline;
+}
+
+.mdl-cell--4-col button ~ label
+{
+	
+	position: fixed;
+	display: inline;
+	height: 0;
+	opacity: 0;
+}
+
+#cart
+{
+	background-color: gray;
+	position: absolute;
+	z-index: 10;
+	right: 10px;
+	top: 10px;
+	z-index: -100;
+}
+
+#cart:hover
+{
+	background-color: rgb(51,204,255);
 }
 
 /*FOR LARGER SCREENS*/
@@ -117,4 +144,24 @@ h1
 		height:auto;
 	}
 
+}
+
+@media (min-width: 840px)
+{
+	.mdl-cell--4-col div
+	{
+		display: block;
+		margin: 10px;
+	}
+
+	.mdl-cell--4-col button ~ label
+	{
+		position: relative;
+		display: inline;
+		opacity: 1;
+	}
+	#map
+	{
+		height: 80vh;
+	}
 }

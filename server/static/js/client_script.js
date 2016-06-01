@@ -1,3 +1,5 @@
+var companyName;
+
 
 //APP FUNCTIONS
 function getStarted(){
@@ -6,6 +8,9 @@ function getStarted(){
     evt.initUIEvent('resize', true, false,window,0);
     window.dispatchEvent(evt);
     console.log("map reload");
+
+    companyName = $("#companyNameField")[0].value;
+    $("#companyNameLabel")[0].innerText = companyName;
 }
 
 function checkText(){
@@ -16,11 +21,42 @@ function checkText(){
 	}
 }
 
+function displayMessage(){
+    var data = {message: 'Purchase Complete'};
+    $("#purchaseComplete")[0].MaterialSnackbar.showSnackbar(data);
+    
+    var shoppingPinsLOC = [];
+	var foodPinsLOC = [];
+	var entertainmentPinsLOC = [];
+
+	//retrieve previous pin data from server
+
+
+	for(i=0; i<shoppingPins.length; i++){
+		shoppingPinsLOC.push(LATLNGtolatlng(shoppingPins[i].position));
+	}
+	for(i=0; i<foodPins.length; i++){
+		foodPinsLOC.push(LATLNGtolatlng(foodPins[i].position));
+  	}
+	for(i=0; i<entertainmentPins.length; i++){
+		entertainmentPinsLOC.push(LATLNGtolatlng(entertainmentPins[i].position));
+  	}
+
+    var shoppingPinsSTR = JSON.stringify(shoppingPinsLOC);
+	var foodPinsSTR = JSON.stringify(foodPinsLOC);
+	var entertainmentPinsSTR = JSON.stringify(entertainmentPinsLOC);
+
+	//LOAD INTO DATABASE
+  	console.log(shoppingPinsSTR);
+  	console.log(foodPinsSTR);
+  	console.log(entertainmentPinsSTR);
+}
 
 //MAP FUNCTIONS
 var map;
 var bounds;
 
+//GRID
 var setPATH = [];
 var setPoly;
 
@@ -29,13 +65,28 @@ var gridPolyx;
 var gridPathy = [];
 var gridPolyy;
 
+//PINS
+var pinState = "";
+var shoppingPins = [];
+var foodPins = [];
+var entertainmentPins = []
+
+
+
+function setState(str){
+	pinState = str;
+}
+
+
 function loadSettings(){
-	var inPath;
+	var inPathSTR;
 
 	//for test purposes
 	//server is meant to supply settings
-	inPath = [{lat: -37.821243049087585, lng: 144.9550724029541}, {lat: -37.815276404447616, lng: 144.97485637664795}, {lat: -37.80735958333689, lng: 144.97103207480086}, {lat: -37.81332959775782, lng: 144.95122646073673},{lat: -37.821243049087585, lng: 144.9550724029541}];
-	
+	var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
+
+
+	var inPath = JSON.parse(inPathSTR);	
 
 	for(i=0; i<inPath.length; i++){
 		setPATH.push(new google.maps.LatLng(inPath[i]));
@@ -53,11 +104,13 @@ function initMap() {
 		zoom: 15
 	});
 
-    setPoly = new google.maps.Polyline({
+    setPoly = new google.maps.Polygon({
         geodesic: true,
         strokeColor: "blue",
         strokeOpacity: 0.6,
-        strokeWeight: 4
+        strokeWeight: 4,
+        fillOpacity: 0,
+        clickable: false
     });
     setPoly.setMap(map);
 
@@ -65,7 +118,8 @@ function initMap() {
         geodesic: true,
         strokeColor: "grey",
         strokeOpacity: 0.2,
-        strokeWeight: 1
+        strokeWeight: 1,
+        clickable: false
     });
     gridPolyx.setMap(map);
     
@@ -73,11 +127,14 @@ function initMap() {
         geodesic: true,
         strokeColor: "grey",
         strokeOpacity: 0.2,
-        strokeWeight: 1
+        strokeWeight: 1,
+        clickable: false
     });
+
+
     gridPolyy.setMap(map);
 
-    bounds = new google.maps.LatLngBounds();
+    map.addListener('click', addLatLng);
 
 	google.maps.event.addListenerOnce(map, 'idle', function(){
 	    loadSettings();
@@ -96,6 +153,115 @@ function updater()
 
 
 }
+
+function addLatLng(event) 
+{
+	if(pinState == "shopping"){
+		if(google.maps.geometry.poly.containsLocation(event.latLng, setPoly)){
+			shoppingPins.push(
+				marker = new google.maps.Marker({
+				position: event.latLng,
+				map: map,
+				draggable: true,
+				icon: {
+			        url: '../static/css/images/handbagPin.png', 
+			        scaledSize: new google.maps.Size(40,40),
+			        origin: new google.maps.Point(0,0),
+			        anchor: new google.maps.Point(20,40)
+					}
+
+				})
+			);
+			$("#cart")[0].style.zIndex = 10;
+			marker.addListener('click', byeMarker);
+			marker.addListener('dragend',function(event){
+				if(!google.maps.geometry.poly.containsLocation(event.latLng, setPoly)){
+					byeMarker(event);
+				}
+			});
+		}
+	}else if(pinState == "food"){
+		if(google.maps.geometry.poly.containsLocation(event.latLng, setPoly)){
+			foodPins.push(
+				marker = new google.maps.Marker({
+				position: event.latLng,
+				map: map,
+				draggable: true,
+				icon: {
+			        url: '../static/css/images/foodPin.png', 
+			        scaledSize: new google.maps.Size(40,40),
+			        origin: new google.maps.Point(0,0),
+			        anchor: new google.maps.Point(20,40)
+					}
+
+				})
+			);
+			$("#cart")[0].style.zIndex = 10;
+			marker.addListener('click', byeMarker);
+			marker.addListener('dragend',function(event){
+				if(!google.maps.geometry.poly.containsLocation(event.latLng, setPoly)){
+					byeMarker(event);
+				}
+			});
+		}
+	}else if(pinState == "entertainment"){
+		if(google.maps.geometry.poly.containsLocation(event.latLng, setPoly)){
+			entertainmentPins.push(
+				marker = new google.maps.Marker({
+				position: event.latLng,
+				map: map,
+				draggable: true,
+				icon: {
+			        url: '../static/css/images/moviePin.png', 
+			        scaledSize: new google.maps.Size(40,40),
+			        origin: new google.maps.Point(0,0),
+			        anchor: new google.maps.Point(20,40)
+					}
+
+				})
+			);
+			$("#cart")[0].style.zIndex = 10;
+			marker.addListener('click', byeMarker);
+			marker.addListener('dragend',function(event){
+				if(!google.maps.geometry.poly.containsLocation(event.latLng, setPoly)){
+					byeMarker(event);
+				}
+			});
+		}
+	}
+}
+
+function byeMarker(event)
+{
+	for(i=0; i<shoppingPins.length; i++){
+		if(shoppingPins[i].position==event.latLng){
+		var marker = shoppingPins[i];
+		marker.setMap(null);
+		marker = null;
+		shoppingPins.splice(i,1);
+		}
+	}
+	for(i=0; i<foodPins.length; i++){
+	    if(foodPins[i].position==event.latLng){
+	      var marker = foodPins[i];
+	      marker.setMap(null);
+	      marker = null;
+	      foodPins.splice(i,1);
+	    }
+  	}
+	for(i=0; i<entertainmentPins.length; i++){
+	    if(entertainmentPins[i].position==event.latLng){
+	      var marker = foodPins[i];
+	      marker.setMap(null);
+	      marker = null;
+	      entertainmentPins.splice(i,1);
+	    }
+  	}
+  	if(shoppingPins.length==0 && foodPins.length==0 && entertainmentPins.length == 0){
+  		$("#cart")[0].style.zIndex = -100;
+  	}
+}
+
 
 function rootFinder(fof,target,initial,eps,changeIndexes){
 	var fval = fof(...initial);
