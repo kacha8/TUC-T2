@@ -80,11 +80,22 @@ h2
 	font-size: 25pt;
 }
 
+#trackPage
+{
+	background-color: rgb(255,255,255);
+}
+
 #map
 {
 	height: calc(100vh - 56px);
 	z-index: 0;
 }
+
+#userDirection
+{
+	transform: rotate(-35deg);
+}
+
 
 /*FOR LARGER SCREENS*/
 @media (min-width: 700px)
@@ -117,5 +128,4 @@ h2
 		width:30vw;
 		height:auto;
 	}
-
 }

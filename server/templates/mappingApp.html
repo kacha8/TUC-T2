@@ -85,12 +85,12 @@
     <div id = "trackPage" data-role = "page">
         <script>
             function selectCSS(){
-                if ($(window).height > $(window).width){
+                if ($(window).height() >= $(window).width()){
                     $('#trackCSS')[0].setAttribute('href','../static/css/mapping_trackT_style.css');
-                    console.log("T");
+                    $("#direction")[0].innerHTML = 'Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span>';
                 }else{
                     $('#trackCSS')[0].setAttribute('href','../static/css/mapping_trackW_style.css');
-                    console.log("W");
+                    $("#direction")[0].innerHTML = 'Please face <span style = "color: rgb(101,153,255);">the blue tile</span>';
                 }
             }
             $(document).ready(function(){
@@ -103,15 +103,15 @@
 
 
         <div id = "accessContainer" data-role = "none">
+            <h1>Map to claim</h1>
             <div id = "topAccess" data-role = "none"></div>
             <div style = "white-space:nowrap; overflow: hidden;" data-role = "none">
                 <span id = "leftAccess"></span>
-                <span id = "userAccess"></span>
+                <span id = "userAccess"><img id = "userDirection" src="../static/css/images/location_services.png"></span>
                 <span id = "rightAccess"></span>
             </div>
             <div id = "bottomAccess" data-role = "none"></div>
-
-
+            <h1 id = "direction">Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span></h1>
         </div>
     </div>
 

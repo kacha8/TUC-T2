@@ -2,10 +2,12 @@
 /*CUSTOM CSS FOR WHEN HIEGHT IS TALLER*/
 #accessContainer
 {
-	position: relative;
+	position: absolute;
 	margin: 0;
 	height: 70vh;
 	width: 70vh;
+	left: 15vh;
+	top: 15vh;
 }
 
 #topAccess
@@ -15,7 +17,7 @@
 	position: absolute;
 	width: 50vh;
 	height: 10vh;
-	background-color: rgb(100,100,100);
+	background-color: rgb(70,70,70);
 }
 
 #bottomAccess
@@ -25,7 +27,7 @@
 	position: absolute;
 	width: 50vh;
 	height: 10vh;
-	background-color: rgb(100,100,100);
+	background-color: rgb(70,70,70);
 }
 
 
@@ -36,7 +38,7 @@
 	top: 10vh;
 	width: 10vh;
 	height: 50vh;
-	background-color: rgb(100,100,100);
+	background-color: rgb(70,70,70);
 }
 
 #rightAccess
@@ -46,7 +48,7 @@
 	top: 10vh;
 	width: 10vh;
 	height: 50vh;
-	background-color: rgb(100,100,100);
+	background-color: rgb(70,70,70);
 }
 
 #userAccess
@@ -57,4 +59,29 @@
 	width: 50vh;
 	height: 50vh;
 	background-color: rgb(200,200,200);
+}
+
+h1
+{
+	position: absolute;
+	font: helvetica;
+	font-size: 7vh;
+	font-weight: lighter;
+	color: rgb(70,70,70);
+	top: -15vh;
+	left: 15vh;
+}
+
+#direction
+{
+	position: absolute;
+	top: 70vh;
+	left: 10vh;
+	font-size: 5vh;
+}
+
+#userDirection
+{
+	height: 40vh;
+	width: auto;
 }
