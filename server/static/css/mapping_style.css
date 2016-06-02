@@ -91,11 +91,6 @@ h2
 	z-index: 0;
 }
 
-#userDirection
-{
-	transform: rotate(-35deg);
-}
-
 
 /*FOR LARGER SCREENS*/
 @media (min-width: 700px)
