@@ -1,0 +1,60 @@
+/*FOR TRACKING PAGE*/
+/*CUSTOM CSS FOR WHEN HIEGHT IS TALLER*/
+#accessContainer
+{
+	position: relative;
+	margin: 0;
+	height: 70vh;
+	width: 70vh;
+}
+
+#topAccess
+{
+	top: 0;
+	left: 10vh;
+	position: absolute;
+	width: 50vh;
+	height: 10vh;
+	background-color: rgb(100,100,100);
+}
+
+#bottomAccess
+{
+	bottom: 0;
+	left: 10vh;
+	position: absolute;
+	width: 50vh;
+	height: 10vh;
+	background-color: rgb(100,100,100);
+}
+
+
+#leftAccess
+{
+	left: 0;
+	position: absolute;
+	top: 10vh;
+	width: 10vh;
+	height: 50vh;
+	background-color: rgb(100,100,100);
+}
+
+#rightAccess
+{
+	right: 0;
+	position: absolute;
+	top: 10vh;
+	width: 10vh;
+	height: 50vh;
+	background-color: rgb(100,100,100);
+}
+
+#userAccess
+{
+	top: 10vh;
+	left: 10vh;
+	position: absolute;
+	width: 50vh;
+	height: 50vh;
+	background-color: rgb(200,200,200);
+}
