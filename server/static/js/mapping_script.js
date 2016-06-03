@@ -16,6 +16,9 @@ var foodPins = [];
 var entertainmentPins = []
 var voucherTiles = [];
 
+var stage = 0;
+var dataSTR = "";
+
 function displayMessage(){
     var data = {
 		message: 'You are on a voucher!!!',
@@ -33,10 +36,113 @@ function openTracker() {
 		i++
 	}
 	if(currentTile==voucherTiles[i]){
-		window.location.href='#trackPage';
+	    if (window.DeviceOrientationEvent) 
+	    {
+	        window.addEventListener('deviceorientation', startTracker);
+			stage = 0;
+			$("#rightAccess")[0].style.backgroundColor = 'rgb(70,70,70)';
+			$("#bottomAccess")[0].style.backgroundColor = 'rgb(70,70,70)';
+			$("#leftAccess")[0].style.backgroundColor = 'rgb(70,70,70)';		
+
+			window.location.href='#trackPage';
+	    }
+	    else
+	    {
+			var data = {
+				message: 'Cannot obtain direction data',
+				timeout: 5000
+			};
+			$("#trackNow")[0].MaterialSnackbar.showSnackbar(data);
+	    }
+	}
+}
+
+function startTracker(e){
+	var bearingx = (google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[1])+720)%360;
+	var bearingy = (google.maps.geometry.spherical.computeHeading(setPATH[3],setPATH[0])+720)%360;
+	var bearingx2 = (google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[0])+720)%360;
+	var bearingy2 = (google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[3])+720)%360;
+
+	$("#userDirection")[0].style.transform = 'rotate(' + Number(bearingx - Number(e.webkitCompassHeading).toFixed(2)) + 'deg)';
+
+	if(stage == 0){
+		if(Number(e.webkitCompassHeading.toFixed(2))>=bearingx-10 && Number(e.webkitCompassHeading.toFixed(2))<=bearingx+10){
+			$("#topAccess")[0].style.backgroundColor = 'rgb(153,200,255)';
+			$('#direction')[0].innerHTML = 'Is this tile wheelchair</br>accessible?</br><button onClick = "confirm()" style = "background-color:rgb(0,255,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">done</i></button><button onClick = "deny()" style = "background-color:rgb(255,0,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">clear</i></button>';
+		}else{
+			$("#topAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+			$('#direction')[0].innerHTML = 'Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span>';
+		}
+	}else if(stage == 1){
+		if(Number(e.webkitCompassHeading.toFixed(2))>=bearingy2-10 && Number(e.webkitCompassHeading.toFixed(2))<=bearingy2+10){
+			$("#rightAccess")[0].style.backgroundColor = 'rgb(153,200,255)';
+			$('#direction')[0].innerHTML = 'Is this tile wheelchair</br>accessible?</br><button onClick = "confirm()" style = "background-color:rgb(0,255,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">done</i></button><button onClick = "deny()" style = "background-color:rgb(255,0,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">clear</i></button>';
+		}else{
+			$("#rightAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+			$('#direction')[0].innerHTML = 'Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span>';
+		}
+	}else if(stage == 2){
+		if(Number(e.webkitCompassHeading.toFixed(2))>=bearingx2-10 && Number(e.webkitCompassHeading.toFixed(2))<=bearingx2+10){
+			$("#bottomAccess")[0].style.backgroundColor = 'rgb(153,200,255)';
+			$('#direction')[0].innerHTML = 'Is this tile wheelchair</br>accessible?</br><button onClick = "confirm()" style = "background-color:rgb(0,255,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">done</i></button><button onClick = "deny()" style = "background-color:rgb(255,0,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">clear</i></button>';
+		}else{
+			$("#bottomAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+			$('#direction')[0].innerHTML = 'Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span>';
+		}
+	}else if(stage == 3){
+		if(Number(e.webkitCompassHeading.toFixed(2))>=bearingy-10 && Number(e.webkitCompassHeading.toFixed(2))<=bearingy+10){
+			$("#leftAccess")[0].style.backgroundColor = 'rgb(153,200,255)';
+			$('#direction')[0].innerHTML = 'Is this tile wheelchair</br>accessible?</br><button onClick = "confirm()" style = "background-color:rgb(0,255,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">done</i></button><button onClick = "deny()" style = "background-color:rgb(255,0,0);" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored"><i class="material-icons">clear</i></button>';
+		}else{
+			$("#leftAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+			$('#direction')[0].innerHTML = 'Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span>';
+		}
 	}
 
 
+}
+
+function confirm(){
+	dataSTR = dataSTR + 'Y'
+	if(stage==0){
+		$("#topAccess")[0].style.backgroundColor = 'rgb(0,255,0)';
+		$("#rightAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+	}else if(stage == 1){
+		$("#rightAccess")[0].style.backgroundColor = 'rgb(0,255,0)';
+		$("#bottomAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+	}else if(stage == 2){
+		$("#bottomAccess")[0].style.backgroundColor = 'rgb(0,255,0)';
+		$("#leftAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+	}else if(stage == 3){
+		$("#leftAccess")[0].style.backgroundColor = 'rgb(0,255,0)';
+	}
+	checkComplete();
+}
+
+function deny(){
+	dataSTR = dataSTR + 'N'
+	if(stage==0){
+		$("#topAccess")[0].style.backgroundColor = 'rgb(255,0,0)';
+		$("#rightAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+	}else if(stage == 1){
+		$("#rightAccess")[0].style.backgroundColor = 'rgb(255,0,0)';
+		$("#bottomAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+	}else if(stage == 2){
+		$("#bottomAccess")[0].style.backgroundColor = 'rgb(255,0,0)';
+		$("#leftAccess")[0].style.backgroundColor = 'rgb(101,153,255)';
+	}else if(stage == 3){
+		$("#leftAccess")[0].style.backgroundColor = 'rgb(255,0,0)';
+	}
+	checkComplete();
+}
+
+function checkComplete(){
+	if(stage<=2){
+		$('#direction')[0].innerHTML = 'Please face </br><span style = "color: rgb(101,153,255);">the blue tile</span>';
+	}else{
+		$('#direction')[0].innerHTML = 'Thank You!</br>Voucher Claimed';
+	}
+	stage++
 }
 
 function loadSettings(){

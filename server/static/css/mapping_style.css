@@ -91,6 +91,17 @@ h2
 	z-index: 0;
 }
 
+#topAccess
+{
+	background-color: rgb(101,153,255);
+}
+
+#userAccess
+{
+	text-align: center;
+}
+
+
 
 /*FOR LARGER SCREENS*/
 @media (min-width: 700px)
