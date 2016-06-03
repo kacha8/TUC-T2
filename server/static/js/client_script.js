@@ -29,7 +29,7 @@ function displayMessage(){
 	var foodPinsLOC = [];
 	var entertainmentPinsLOC = [];
 
-	//retrieve previous pin data from server
+	//retrieve previous pin data from server and append to arrays above
 
 
 	for(i=0; i<shoppingPins.length; i++){
@@ -142,17 +142,6 @@ function initMap() {
 
 }
 
-
-
- window.setInterval(function(){
-        updater();
-    }, 10);
-
-function updater()
-{
-
-
-}
 
 function addLatLng(event) 
 {
@@ -449,11 +438,3 @@ function tileNo(pos){
 	return tile;
 
 }
-
-
-//TESTING FUNCTIONS
-function add(a,b){
-	return a+b;
-}
-
-console.log(rootFinder(add,6,[4,1],0.1,[0,1]));

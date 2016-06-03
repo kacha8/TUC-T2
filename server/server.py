@@ -34,7 +34,6 @@ def init_db():
 				db.cursor().executescript(f.read())
 			db.commit()
 
-
 def get_db():
     """Opens a new database connection if there is none yet for the
     current application context.
@@ -43,6 +42,8 @@ def get_db():
         g.sqlite_db = connect_db()
     return g.sqlite_db
 
+#APP FUNCTIONS
+#EDIT BELOW HERE
 
 @app.teardown_appcontext
 def close_db(error):
@@ -56,19 +57,20 @@ def show_entries():
     db = get_db()
     cur = db.execute('select title, text from entries order by id desc')
     entries = cur.fetchall()
-    return render_template('show_entries.html', entries=entries)
+    return render_template('index.html', entries=entries)
 
 
-@app.route('/add', methods=['POST'])
+
+
+@app.route('/add', methods=['GET', 'POST'])
 def add_entry():
-    if not session.get('logged_in'):
-        abort(401)
-    db = get_db()
-    db.execute('insert into entries (title, text) values (?, ?)',
-               [request.form['title'], request.form['text']])
-    db.commit()
-    flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
+    if request.method == 'POST':
+        db = get_db()
+        db.execute('insert into entries (title, text) values (?, ?)',
+                   [request.form['title'], request.form['text']])
+        db.commit()
+    else:
+
 
 
 @app.route('/login', methods=['GET', 'POST'])

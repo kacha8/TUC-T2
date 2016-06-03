@@ -6,6 +6,8 @@ var setPATH = [];
 var setROUTEmarkers = [];
 var setPoly;
 
+var inPathSTR;
+
 var gridPathx = [];
 var gridPolyx;
 var gridPathy = [];
@@ -131,9 +133,15 @@ function addLatLng(event)
 			})
 		);
 
+		var inPath= [];
 		for(i=0; i<setROUTEmarkers.length; i++){
-			console.log(LATLNGtolatlng(setROUTEmarkers[i].position));
+			inPath.push(LATLNGtolatlng(setROUTEmarkers[i].position));
 		}
+		inPathSTR = JSON.stringify(inPath);
+
+		//LOAD THIS INTO SERVER
+		console.log(inPathSTR);
+
 
 		marker.addListener('click', byeMarker);
 	    bounds.extend(event.latLng);
@@ -353,11 +361,3 @@ function tileNo(pos){
 	return tile;
 
 }
-
-
-//TESTING FUNCTIONS
-function add(a,b){
-	return a+b;
-}
-
-console.log(rootFinder(add,6,[4,1],0.1,[0,1]));

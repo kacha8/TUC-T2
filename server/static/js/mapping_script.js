@@ -534,11 +534,3 @@ function tileNo(pos){
 	return tile;
 
 }
-
-
-//TESTING FUNCTIONS
-function add(a,b){
-	return a+b;
-}
-
-console.log(rootFinder(add,6,[4,1],0.1,[0,1]));
