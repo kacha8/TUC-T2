@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<!--
+ *
+ * Sensor Test web app
+ * 
+ * Copyright (c) 2014-2015  Monash University
+ *
+ * Written by Michael Wybrow
+ *
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+-->
+<html>
+<head>
+<title>ENG1003 sensor test</title>    
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="shortcut icon" sizes="196x196" href="sensortest.png" />
+<link rel="apple-touch-icon-precomposed" href="sensortest.png" />
+<style>
+
+video#cameraVideo  
+{ 
+  width: auto; 
+  height: auto; 
+  border: 1px solid black;
+}
+
+</style>
+</head>
+<body>
+
+<div id="sensorOutputPage" data-role="page">
+    <div data-role="header" data-position="fixed"> 
+		 <h1>Sensor Test</h1> 
+    </div>
+
+    <div data-role="content">
+        <ul data-role="listview" data-inset="true">
+          <li data-role="list-divider">Device orientation:</li>
+            <li class="compassValue">Alpha: <span id="alphaValue"></span>&deg;</li>
+            <li class="compassValue">Beta: <span id="betaValue"></span>&deg;</li>
+            <li class="compassValue">Gamma: <span id="gammaValue"></span>&deg;</li>
+            <li class="compassValue">Absolute: <span id="absoluteValue"></span></li>
+            <li class="compassValue">Heading: <span id="headingValue"></span>&deg;</li>
+            <li class="webkitCompassValue">WebkitHeading: <span id="webkitHeadingValue"></span>&deg;</li>
+            <li class="webkitCompassValue">WebkitAccuracy: +/-<span id="webkitAccuracyValue"></span>&deg;</li>
+            <li class="compassError">Device orientation sensor not available.</li>
+        </ul> 
+        <ul data-role="listview" data-inset="true">    
+          <li data-role="list-divider">Device motion:</li>
+            <li class="accelerometerValue">gX: <span id="gX">0</span>g</li>
+            <li class="accelerometerValue">gY: <span id="gY">0</span>g</li>
+            <li class="accelerometerValue">gZ: <span id="gZ">0</span>g</li>
+            <li class="accelerometerValue">Rotation alpha: <span id="rotAlphaValue"></span>&deg;/s</li>
+            <li class="accelerometerValue">Rotation beta: <span id="rotBetaValue"></span>&deg;/s</li>
+            <li class="accelerometerValue">Rotation gamma: <span id="rotGammaValue"></span>&deg;/s</li>
+            <li class="accelerometerValue">Pitch: <span id="pitch">0</span><sup>&deg;</sup></li>
+            <li class="accelerometerValue">Roll: <span id="roll">0</span><sup>&deg;</sup></li>
+            <li class="accelerometerError">Device motion sensor not available.</li>
+        </ul>
+        <ul data-role="listview" data-inset="true">
+          <li data-role="list-divider">GPS:</li>
+            <li class="gpsValue">Latitude: <span id="latValue"></span></li>
+            <li class="gpsValue">Longitude: <span id="longValue"></span></li>
+            <li class="gpsValue">Accuracy: <span id="accuracyValue"></span></li>
+            <li class="gpsError">GPS sensor not available.</li>
+        </ul>
+<!--        
+        <ul data-role="listview" data-inset="true">
+          <li data-role="list-divider">Light sensor:</li>
+            <li class="lightValue">Light: <span id="light"></span>lux</li>
+            <li class="lightError">Ambient light sensor not available.</li>
+        </ul>
+-->
+        <ul data-role="listview" data-inset="true">
+          <li data-role="list-divider">Back camera:</li>
+            <li class="cameraError">Back camera not available.</li>
+          <li class="cameraValue">
+          <video muted autoplay id="cameraVideo"></video>
+          </li>
+        </ul>
+    </div>
+</div><!-- /page -->    
+
+<script type="text/javascript">
+    
+    var LR;
+    var FB;
+    var DIR;
+
+    // Value for low pass filter
+    var alpha = 0.8;
+    
+    var smoothGX = 0;
+    var smoothGY = 0;
+    var smoothGZ = 0;
+
+    var smoothLR = 0;
+    var smoothFB = 0;
+    var smoothDIR = 0;
+    
+    if (navigator.geolocation)
+    {     
+        positionOptions = {
+            enableHighAccuracy: true,
+            timeout: Infinity, 
+            maximumAge: 0
+        }; 
+
+        $('.gpsError').hide();
+        navigator.geolocation.watchPosition(showCurrentLocation, errorHandler, positionOptions);
+    }
+    else
+    {
+        $('.gpsValue').hide();
+    }
+
+    function errorHandler(error)
+    {
+        if(error.code == 0){
+           alert("Unknown error");
+        }
+        if(error.code == 1){
+           alert("Access denied by user");
+        }
+
+        if(error.code == 2){
+           alert("Position unavailable");
+        }
+
+        if(error.code == 3){
+           alert("Timed out");
+        }
+    }
+
+    function showCurrentLocation(position)
+    {
+        // Demonstrate the current latitude and longitude:
+        document.getElementById("latValue").innerHTML = Number(position.coords.latitude).toFixed(4);
+        document.getElementById("longValue").innerHTML = Number(position.coords.longitude).toFixed(4);
+
+        document.getElementById("accuracyValue").innerHTML = Number(position.coords.accuracy).toFixed(2);  
+    }
+
+/*
+    function deviceLightUpdate(e)
+    {
+        // Get the ambient light level in lux.
+        var lightLevel = event.value;
+        document.getElementById("light").innerHTML = Number(lightLevel).toFixed(2);     
+    }
+    
+    if (window.DeviceLightEvent)
+    {
+        $('.lightError').hide();
+        window.addEventListener('devicelight', deviceLightUpdate);
+    }
+    else
+    {
+        $('.lightValue').hide();
+    }
+*/
+    var degtorad = Math.PI / 180; // Degree-to-Radian conversion
+
+    // From W3C spec.
+    function compassHeading( alpha, beta, gamma ) {
+
+      var _x = beta  ? beta  * degtorad : 0; // beta value
+      var _y = gamma ? gamma * degtorad : 0; // gamma value
+      var _z = alpha ? alpha * degtorad : 0; // alpha value
+
+      var cX = Math.cos( _x );
+      var cY = Math.cos( _y );
+      var cZ = Math.cos( _z );
+      var sX = Math.sin( _x );
+      var sY = Math.sin( _y );
+      var sZ = Math.sin( _z );
+
+      // Calculate Vx and Vy components
+      var Vx = - cZ * sY - sZ * sX * cY;
+      var Vy = - sZ * sY + cZ * sX * cY;
+
+      // Calculate compass heading
+      var compassHeading = Math.atan( Vx / Vy );
+
+      // Convert compass heading to use whole unit circle
+      if( Vy < 0 ) {
+        compassHeading += Math.PI;
+      } else if( Vx < 0 ) {
+        compassHeading += 2 * Math.PI;
+      }
+
+      return compassHeading * ( 180 / Math.PI ); // Compass Heading (in degrees)
+    }
+
+    function deviceOrientationUpdate(e)
+    {
+		if(e.gamma==null && e.beta==null && e.alpha==null)
+		{
+            $('.compassValue').hide();
+            $('.webkitCompassValue').hide();
+            $('.compassError').show();
+            return;
+        }
+        $('.compassValue').show();
+        $('.compassError').hide();
+
+        //Low Pass Filter
+        smoothDIR = e.alpha * alpha + (smoothDIR * (1.0 - alpha));
+        smoothFB = e.beta * alpha + (smoothFB * (1.0 - alpha));
+        smoothLR = e.gamma * alpha + (smoothLR * (1.0 - alpha));
+
+        var absolute = e.absolute ? "true" : "false";
+        if (e.absolute)
+        {
+            var heading = compassHeading(smoothDIR, smoothFB, smoothLR);
+            document.getElementById("headingValue").innerHTML = Number(heading).toFixed(2);
+        }
+        else
+        {
+            document.getElementById("headingValue").innerHTML = "???";
+        }
+        
+        document.getElementById("alphaValue").innerHTML = Number(smoothDIR).toFixed(2);
+        document.getElementById("betaValue").innerHTML = Number(smoothFB).toFixed(2);
+        document.getElementById("gammaValue").innerHTML = Number(smoothLR).toFixed(2);
+        document.getElementById("absoluteValue").innerHTML = absolute;
+        
+        if (e.webkitCompassHeading != undefined)
+        {
+            $('.webkitCompassValue').show();
+            document.getElementById("webkitHeadingValue").innerHTML = Number(e.webkitCompassHeading).toFixed(2);
+            document.getElementById("webkitAccuracyValue").innerHTML = Number(e.webkitCompassAccuracy).toFixed(2);
+        }
+        else
+        {
+            $('.webkitCompassValue').hide();
+        }
+    }
+
+    if (window.DeviceOrientationEvent) 
+    {
+        $('.compassError').hide();
+        window.addEventListener('deviceorientation', deviceOrientationUpdate);
+    }
+    else
+    {
+        $('.compassValue').hide();
+    }
+
+
+    function deviceMotionUpdate(e)
+    {
+        var aX = e.accelerationIncludingGravity.x;
+        var aY = e.accelerationIncludingGravity.y;
+        var aZ = e.accelerationIncludingGravity.z;
+    
+        var gX = aX / 9.8;
+        var gY = aY / 9.8;
+        var gZ = aZ / 9.8;
+           
+        //Low Pass Filter
+        smoothGX = gX * alpha + (smoothGX * (1.0 - alpha));
+        smoothGY = gY * alpha + (smoothGY * (1.0 - alpha));
+        smoothGZ = gZ * alpha + (smoothGZ * (1.0 - alpha));
+      
+        var pitch = (Math.atan(-smoothGY / smoothGZ) * 180) / Math.PI;
+        var roll = (Math.atan(smoothGX / Math.sqrt(Math.pow(smoothGY,2) + Math.pow(smoothGZ,2))) * 180) / Math.PI;
+          
+   	    document.getElementById("gX").innerHTML = Number(smoothGX).toFixed(2);
+        document.getElementById("gY").innerHTML = Number(smoothGY).toFixed(2);
+        document.getElementById("gZ").innerHTML = Number(smoothGZ).toFixed(2);
+   
+        document.getElementById("rotAlphaValue").innerHTML = Number(e.rotationRate.alpha).toFixed(2);
+        document.getElementById("rotBetaValue").innerHTML = Number(e.rotationRate.beta).toFixed(2);
+        document.getElementById("rotGammaValue").innerHTML = Number(e.rotationRate.gamma).toFixed(2);
+        
+        document.getElementById("pitch").innerHTML = Number(pitch).toFixed(1);
+        document.getElementById("roll").innerHTML = Number(roll).toFixed(1);     
+    }
+    
+ 
+    if (window.DeviceMotionEvent)
+    {
+        $('.accelerometerError').hide();
+        window.addEventListener("devicemotion", deviceMotionUpdate);
+    }
+    else
+    {
+        $('.accelerometerValue').hide();
+    }
+
+
+    var videoElement = document.querySelector("video");
+    
+    
+    function successCallback(stream)
+    {
+        window.stream = stream; // make stream available to console
+        videoElement.src = window.URL.createObjectURL(stream);
+        videoElement.play();
+    }
+
+    function errorCallback(error)
+    {
+        console.log("navigator.getUserMedia error: ", error);
+    }
+
+    // Support different browsers
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+    function sourceSelected(videoSource)
+    {
+        if (!!window.stream)
+        {
+            videoElement.src = null;
+            window.stream.stop();
+        }
+
+        var constraints = {
+            video: {
+                optional: [{sourceId: videoSource}]
+            },
+            audio: false
+        };
+
+        navigator.getUserMedia(constraints, successCallback, errorCallback);
+    }
+   
+    
+    function gotSources(sourceInfos)
+    {
+        var videoSource = null;
+
+        for (var i = 0; i != sourceInfos.length; ++i)
+        {
+            var sourceInfo = sourceInfos[i];
+            if (sourceInfo.kind === 'video')
+            {
+                videoSource = sourceInfo.id;
+            }
+            else
+            {
+                console.log('Some other kind of source: ', sourceInfo);
+            }    
+        }
+
+        sourceSelected(videoSource);
+    }
+
+    if (typeof MediaStreamTrack === 'undefined')
+    {
+        $('.cameraValue').hide();
+    } 
+    else 
+    {
+        $('.cameraError').hide();
+        MediaStreamTrack.getSources(gotSources);
+    }
+</script>
+
+</body>
+</html>
