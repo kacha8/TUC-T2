@@ -240,7 +240,7 @@ function byeMarker(event)
   	}
 	for(i=0; i<entertainmentPins.length; i++){
 	    if(entertainmentPins[i].position==event.latLng){
-	      var marker = foodPins[i];
+	      var marker = entertainmentPins[i];
 	      marker.setMap(null);
 	      marker = null;
 	      entertainmentPins.splice(i,1);
