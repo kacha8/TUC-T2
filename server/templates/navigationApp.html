@@ -28,11 +28,43 @@
     async defer></script>
 </head>
 <body>
-	<div class="page" data-role = "page">
-    	<h2>Developer Options</h2>
-    	<label>Open console to view probe outputs</label>
-    	<div id="map"></div>
-    	<button onClick='generateGrid()'>Generate Grid</button>
-    	<button onClick = "window.location.href='index.html'">Return to index page</button>
+    <div data-role = "page" onClick = "window.location.href='#mainApp'">
+        <img src="../static/css/images/Fizzi_Digi.png">
+    </div>
+
+	<div id="mainApp" class="page" data-role = "page">
+        <div id = "activate" data-role = "none">
+            <label id = "welcomeLabel" data-role = "none">Welcome to<br/>WheelPal</label>
+            <img src="../static/css/images/App_Logo2.png">
+            <script>
+                $(document).ready(function(){document.getElementById("nextButton").removeAttribute("disabled");});
+            </script>
+
+            <button id="nextButton" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled onClick = "startTracking()" data-role = "none">
+                Next
+            </button>
+        </div>
+    	<div id = "app" class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+            mdl-layout--fixed-header">
+            <header class="mdl-layout__header mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <!-- Title -->
+                    <span class="mdl-layout-title">WheelPal</span>
+            </header>
+            <div class="mdl-layout__drawer">
+                <span class="mdl-layout-title">WheelPal</span>
+                <nav class="mdl-navigation">
+                    <a class="mdl-navigation__link" href="">Favourites</a>
+                    <a class="mdl-navigation__link" href="">Settings</a>
+                </nav>
+            </div>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+
+                    <div id="map"></div>
+
+                </div>
+            </main>
+        </div>
 	</div>
 </body>

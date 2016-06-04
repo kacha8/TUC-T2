@@ -1,16 +1,38 @@
+var companyName;
+
+//MAP FUNCTIONS
 var map;
 var bounds;
+var currentPos;
 
-var setROUTE = true;
+//GRID
 var setPATH = [];
-var setROUTEmarkers = [];
 var setPoly;
 
 var gridPathx = [];
 var gridPolyx;
 var gridPathy = [];
 var gridPolyy;
-var probe;
+
+function loadSettings(){
+	var inPathSTR;
+
+	//for test purposes
+	//server is meant to supply settings
+	var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
+
+
+	var inPath = JSON.parse(inPathSTR);	
+
+	for(i=0; i<inPath.length; i++){
+		setPATH.push(new google.maps.LatLng(inPath[i]));
+
+	}	
+	setPoly.setPath(setPATH);
+
+	generateGrid();
+}
+
 
 function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
@@ -18,11 +40,13 @@ function initMap() {
 		zoom: 15
 	});
 
-    setPoly = new google.maps.Polyline({
+    setPoly = new google.maps.Polygon({
         geodesic: true,
         strokeColor: "blue",
         strokeOpacity: 0.6,
-        strokeWeight: 4
+        strokeWeight: 4,
+        fillOpacity: 0,
+        clickable: false
     });
     setPoly.setMap(map);
 
@@ -30,7 +54,8 @@ function initMap() {
         geodesic: true,
         strokeColor: "grey",
         strokeOpacity: 0.2,
-        strokeWeight: 1
+        strokeWeight: 1,
+        clickable: false
     });
     gridPolyx.setMap(map);
     
@@ -38,129 +63,98 @@ function initMap() {
         geodesic: true,
         strokeColor: "grey",
         strokeOpacity: 0.2,
-        strokeWeight: 1
+        strokeWeight: 1,
+        clickable: false
     });
+
+    var image = {
+        url: '../static/css/images/currentPosIcon.png', 
+        size: new google.maps.Size(20,20),
+        origin: new google.maps.Point(0,0),
+        anchor: new google.maps.Point(10,10)
+    };
+
+    currentPos = new google.maps.Marker({
+	    title: 'Current Position',
+	    map: map,
+	    icon: image
+
+	    //for debugging
+	    ,draggable: true,
+	    position: {lat: -37.814205129899264, lng: 144.96328043060305}
+    });
+
+
     gridPolyy.setMap(map);
 
-	probe = new google.maps.Marker({
-        position: {lat: -37.814205129899264, lng: 144.96328043060305},
-        map: map,
-        draggable: true
-      });
+    map.addListener('click', addLatLng);
 
-	probe.addListener('rightclick', probing);
+	google.maps.event.addListenerOnce(map, 'idle', function(){
+	    loadSettings();
+	});
 
-    bounds = new google.maps.LatLngBounds();
-
-	map.addListener('click', addLatLng);
 }
 
- window.setInterval(function(){
-        updater();
-    }, 10);
+var positionOptions = {
+        enableHighAccuracy: true,
+        timeout: 5000, 
+        maximumAge: 0
+    };
 
+function startTracking(){
+    var evt = document.createEvent('UIEvents');
+    evt.initUIEvent('resize', true, false,window,0);
+    window.dispatchEvent(evt);
+    console.log("map reload");
 
- function probing(event){
- 	console.log(LATLNGtolatlng(probe.position));
-
- 	console.log(tileNo(probe.position));
-
- }
-
-function updater()
+	$("#activate")[0].style.zIndex = -3;
+	$("#app")[0].style.zIndex = 10;
+	if (navigator.geolocation){     
+	    $('.gpsError').hide();
+	    window.setInterval(function(){
+	        navigator.geolocation.getCurrentPosition(showCurrentLocation, errorHandler, positionOptions);
+	    }, 5000);
+	    
+	}else{
+	    $('.gpsValue').hide();
+	}
+}
+function errorHandler(error)
 {
-    if(setROUTE === true){
-        setPATH = [];
-        for(i=0; i<setROUTEmarkers.length; i++){
-            var pos = setROUTEmarkers[i].position;
-            setPATH.push(pos);
-            bounds.extend(pos);
-        }
+    if(error.code == 0){
+        console.log("Unknown error");
+    }
+    if(error.code == 1){
+        console.log("Access denied by user");
+    }
 
-        if(setROUTEmarkers.length>1){
-	        setPATH.push(setROUTEmarkers[0].position);
-            setPoly.setPath(setPATH);
-        }
+    if(error.code == 2){ 
+        console.log("Position unavailable");
+    }
+
+    if(error.code == 3){
+        console.log("Timed out");
     }
 }
+
+
+function showCurrentLocation(position)
+{        
+    currentPos.setPosition({lat: position.coords.latitude, lng: position.coords.longitude});
+    map.setCenter(currentPos.position);
+}
+
 
 function addLatLng(event) 
 {
-	if(setROUTEmarkers.length <= 1){
-	    setROUTEmarkers.push(
-	      marker = new google.maps.Marker({
-	        position: event.latLng,
-	        map: map,
-	        draggable: true
-	      })
-	    );
-	    marker.addListener('click', byeMarker);
-	    bounds.extend(event.latLng);
-	}else if(setROUTEmarkers.length == 2){
-		var bearing = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[1].position);
-		console.log(bearing);
-		var newbearing = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,event.latLng);
 
-
-		if((newbearing<bearing && newbearing > bearing -180)){
-			var nxtbearing = - 90;
-		}else{
-			var nxtbearing = + 90;
-		}
-
-
-		var odist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, setROUTEmarkers[0].position)/1000;
-
-		var dist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, event.latLng)/1000;
-
-		setROUTEmarkers.push(
-			marker = new google.maps.Marker({
-				position: pointFromBearingAndDistance(LATLNGtolatlng(setROUTEmarkers[1].position),bearing + nxtbearing,dist),
-				map: map,
-				draggable: false,
-				icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-	      	})
-	    );
-		marker.addListener('click', byeMarker);
-		setROUTEmarkers.push(
-			marker = new google.maps.Marker({
-				position: pointFromBearingAndDistance(LATLNGtolatlng(setROUTEmarkers[2].position),bearing + 2*nxtbearing,odist),
-				map: map,
-				draggable: false,
-				icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-			})
-		);
-		marker.addListener('click', byeMarker);
-	    bounds.extend(event.latLng);
-	}else if(setROUTEmarkers.length>2){
-		for(i=2; i<4; i++){
-			var marker = setROUTEmarkers[2];
-			marker.setMap(null);
-			marker = null;
-			setROUTEmarkers.splice(2,1);
-	    }
-		map.fitBounds(bounds);
-		gridPathx = [];
-		gridPolyx;
-		gridPathy = [];
-		gridPolyy;
-		gridPolyx.setPath(gridPathx);
-		gridPolyy.setPath(gridPathy);
-    }
 }
-
 
 function byeMarker(event)
 {
-  for(i=0; i<setROUTEmarkers.length; i++){
-    if(setROUTEmarkers[i].position==event.latLng){
-      var marker = setROUTEmarkers[i];
-      marker.setMap(null);
-      marker = null;
-      setROUTEmarkers.splice(i,1);
-    }
-  }
+
 }
+
 
 function rootFinder(fof,target,initial,eps,changeIndexes){
 	var fval = fof(...initial);
@@ -273,17 +267,17 @@ function generateGrid(){
 	gridPolyx.setPath(gridPathx);
 	gridPolyy.setPath(gridPathy);
 
-	var bearingx = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[1].position);
-	var bearingx2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,setROUTEmarkers[0].position);
-	var bearingy = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,setROUTEmarkers[2].position);
-	var bearingy2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[2].position,setROUTEmarkers[1].position);
-	var odist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, setROUTEmarkers[0].position)/1000;
-	var hdist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[1].position, setROUTEmarkers[2].position)/1000;
+	var bearingx = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[1]);
+	var bearingx2 = google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[0]);
+	var bearingy = google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[2]);
+	var bearingy2 = google.maps.geometry.spherical.computeHeading(setPATH[2],setPATH[1]);
+	var odist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[1], setPATH[0])/1000;
+	var hdist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[1], setPATH[2])/1000;
 	var newpt;
-	var oldpt =  LATLNGtolatlng(setROUTEmarkers[0].position);
+	var oldpt =  LATLNGtolatlng(setPATH[0]);
 	var flip = true;
 
-	gridPathx.push(setROUTEmarkers[0].position);
+	gridPathx.push(setPATH[0]);
 	var gridWidth = 0;
 	while(gridWidth<odist-0.01){
 		newpt = pointFromBearingAndDistance(oldpt,bearingx,0.010);
@@ -302,8 +296,8 @@ function generateGrid(){
 	}
 	gridPolyx.setPath(gridPathx);
 	
-	gridPathy.push(setROUTEmarkers[0].position);
-	var oldpt =  LATLNGtolatlng(setROUTEmarkers[0].position);
+	gridPathy.push(setPATH[0]);
+	var oldpt =  LATLNGtolatlng(setPATH[0]);
 	var flip = true;
 	var gridWidth = 0;
 	while(gridWidth<hdist-0.01){
@@ -327,19 +321,19 @@ function generateGrid(){
 }
 
 function tileNo(pos){
-	var bearingx = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[1].position);
-	var bearingy = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[3].position,setROUTEmarkers[0].position);
-	var bearingx2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[1].position,setROUTEmarkers[0].position);
-	var bearingy2 = google.maps.geometry.spherical.computeHeading(setROUTEmarkers[0].position,setROUTEmarkers[3].position);
+	var bearingx = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[1]);
+	var bearingy = google.maps.geometry.spherical.computeHeading(setPATH[3],setPATH[0]);
+	var bearingx2 = google.maps.geometry.spherical.computeHeading(setPATH[1],setPATH[0]);
+	var bearingy2 = google.maps.geometry.spherical.computeHeading(setPATH[0],setPATH[3]);
 
-	var xint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingy, LATLNGtolatlng(setROUTEmarkers[0].position), bearingx);
+	var xint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingy, LATLNGtolatlng(setPATH[0]), bearingx);
 	console.log(xint);
 
-	var yint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingx2, LATLNGtolatlng(setROUTEmarkers[0].position), bearingy2);
+	var yint = intesectionGivenBearing(LATLNGtolatlng(pos), bearingx2, LATLNGtolatlng(setPATH[0]), bearingy2);
 	console.log(yint);
 
-	var xdist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[0].position, new google.maps.LatLng(xint))/1000;
-	var ydist = google.maps.geometry.spherical.computeDistanceBetween(setROUTEmarkers[0].position, new google.maps.LatLng(yint))/1000;
+	var xdist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[0], new google.maps.LatLng(xint))/1000;
+	var ydist = google.maps.geometry.spherical.computeDistanceBetween(setPATH[0], new google.maps.LatLng(yint))/1000;
 
 	var xNo = Math.ceil(xdist/0.01);
 	var yNo = Math.ceil(ydist/0.01);
@@ -348,11 +342,3 @@ function tileNo(pos){
 	return tile;
 
 }
-
-
-//TESTING FUNCTIONS
-function add(a,b){
-	return a+b;
-}
-
-console.log(rootFinder(add,6,[4,1],0.1,[0,1]));
