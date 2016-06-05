@@ -86,7 +86,7 @@ function loadSettings(){
 	//var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
 
 
-	$.getJSON($SCRIPT_ROOT + '/_bounds', {}, function(data) {
+	$.getJSON($SCRIPT_ROOT + '/_bounds', function(data) {
 		var inPath = [];
         inPathSTR = data;
 
