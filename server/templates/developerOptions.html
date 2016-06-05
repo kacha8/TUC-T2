@@ -27,6 +27,8 @@
 	<script src="../static/js/developer_script.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWqrhj_Fani8INJwGsg1hYX4W0BDzkzWo&callback=initMap"
     async defer></script>
+
+    <script>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
 </head>
 <body>
 	<div class="page" data-role = "page">

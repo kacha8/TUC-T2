@@ -14,6 +14,32 @@ var gridPathy = [];
 var gridPolyy;
 var probe;
 
+function loadSettings(){
+
+	//for test purposes
+	//server is meant to supply settings
+	//inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
+	$.getJSON($SCRIPT_ROOT + '/_bounds', function(data) {
+		var inPath = [];
+        inPathSTR = data;
+
+		inPath = JSON.parse(inPathSTR);	
+
+		for(i=0; i<inPath.length; i++){
+			setROUTEmarkers.push(
+		      marker = new google.maps.Marker({
+		        position: new google.maps.LatLng(inPath[i]),
+		        map: map,
+		        draggable: true
+		      })
+		    );
+		    marker.addListener('click', byeMarker);
+		    bounds.extend(new google.maps.LatLng(inPath[i]));
+		}	
+  	});
+}
+
+
 function initMap() {
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {lat: -37.814205129899264, lng: 144.96328043060305},
@@ -55,6 +81,10 @@ function initMap() {
     bounds = new google.maps.LatLngBounds();
 
 	map.addListener('click', addLatLng);
+
+	google.maps.event.addListenerOnce(map, 'idle', function(){
+	    loadSettings();
+	});
 }
 
  window.setInterval(function(){
@@ -141,6 +171,9 @@ function addLatLng(event)
 
 		//LOAD THIS INTO SERVER
 		console.log(inPathSTR);
+		$.getJSON($SCRIPT_ROOT + '/_bounds_update', {latlngs: inPathSTR}, function( data ) {console.log(data);});
+
+
 
 
 		marker.addListener('click', byeMarker);

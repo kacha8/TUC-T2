@@ -26,18 +26,22 @@ function loadSettings(){
 
 	//for test purposes
 	//server is meant to supply settings
-	var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
+	//var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
 
+	$.getJSON($SCRIPT_ROOT + '/_bounds', function(data) {
+		var inPath = [];
+        inPathSTR = data;
 
-	var inPath = JSON.parse(inPathSTR);	
+		inPath = JSON.parse(inPathSTR);	
 
-	for(i=0; i<inPath.length; i++){
-		setPATH.push(new google.maps.LatLng(inPath[i]));
+		for(i=0; i<inPath.length; i++){
+			setPATH.push(new google.maps.LatLng(inPath[i]));
 
-	}	
-	setPoly.setPath(setPATH);
+		}	
+		setPoly.setPath(setPATH);
 
-	generateGrid();
+		generateGrid();
+  	});
 }
 
 

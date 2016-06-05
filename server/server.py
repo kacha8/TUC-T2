@@ -42,6 +42,13 @@ def get_db():
         g.sqlite_db = connect_db()
     return g.sqlite_db
 
+def query_db(query, args=(), one=False):
+    """queries database for a single result"""
+    cur = get_db().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
+
 #APP FUNCTIONS
 #EDIT BELOW HERE
 
@@ -53,49 +60,51 @@ def close_db(error):
 
 
 @app.route('/')
-def show_entries():
-    db = get_db()
-    cur = db.execute('select title, text from entries order by id desc')
-    entries = cur.fetchall()
-    return render_template('index.html', entries=entries)
+def index():
+    return render_template('index.html')
 
+@app.route('/developerOptions.html')
+def dev():
+    return render_template('developerOptions.html')
 
+@app.route('/clientApp.html')
+def cli():
+    return render_template('clientApp.html')
 
+@app.route('/index.html')
+def ind():
+    return render_template('index.html')
 
-@app.route('/add', methods=['GET', 'POST'])
-def add_entry():
-    if request.method == 'POST':
+@app.route('/mappingApp.html')
+def map():
+    return render_template('mappingApp.html')
+
+@app.route('/navigationApp.html')
+def nav():
+    return render_template('navigationApp.html')
+
+@app.route('/_bounds_update', methods=['GET'])
+def boundsUpdate():
+    if request.method == 'GET':
+        latlngs = request.args.get('latlngs',0)
+        print latlngs
+        init_db()
         db = get_db()
         db.execute('insert into entries (title, text) values (?, ?)',
-                   [request.form['title'], request.form['text']])
+                   ['bounds', latlngs])
         db.commit()
-    else:
+        return jsonify(data='success')
+        
+        
+@app.route('/_bounds', methods=['GET'])
+def bounds():
+    db = get_db()
+    path = query_db('select * from entries where title = ?',['bounds'], one=True)
+    return jsonify(path['text'])
 
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME']:
-            error = 'Invalid username'
-        elif request.form['password'] != app.config['PASSWORD']:
-            error = 'Invalid password'
-        else:
-            session['logged_in'] = True
-            flash('You were logged in')
-            return redirect(url_for('show_entries'))
-    return render_template('login.html', error=error)
-
-
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    flash('You were logged out')
-    return redirect(url_for('show_entries'))
 
 if __name__ == '__main__':
-    init_db() 
+    # init_db()
     # Uncommenting the above line will make the server reinitialise the db each time it's run,
     # removing any previous records, leave commented for a persistent DB
     

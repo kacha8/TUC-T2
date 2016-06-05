@@ -153,26 +153,30 @@ function loadSettings(){
 
 	//for test purposes
 	//server is meant to supply settings
-	var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
+	//var inPathSTR = '[{"lat":-37.821243049087585,"lng":144.9550724029541},{"lat":-37.815276404447616,"lng":144.97485637664795},{"lat":-37.80735958333689,"lng":144.97103207480086},{"lat":-37.81332959775782,"lng":144.95122646073673}]';
 	var shoppingPinsSTR = '[{"lat":-37.816415846232616,"lng":144.9629259109497},{"lat":-37.810618336102884,"lng":144.9622392654419},{"lat":-37.810618336102884,"lng":144.9632692337036},{"lat":-37.80990632978781,"lng":144.9643850326538}]';
 	var foodPinsSTR = '[{"lat":-37.81482242390451,"lng":144.95829105377197},{"lat":-37.81756851328617,"lng":144.95726108551025},{"lat":-37.81716169167538,"lng":144.9659299850464},{"lat":-37.81702608397355,"lng":144.96468544006348},{"lat":-37.817466808093656,"lng":144.9640417098999},{"lat":-37.817670218338534,"lng":144.9633550643921}]';
 	var entertainmentPinsSTR = '[{"lat":-37.81316115975215,"lng":144.9634838104248},{"lat":-37.816042920685355,"lng":144.9607801437378},{"lat":-37.81231356159958,"lng":144.96798992156982},{"lat":-37.813296774553564,"lng":144.96949195861816},{"lat":-37.81339848549114,"lng":144.97073650360107},{"lat":-37.814347780818274,"lng":144.9718952178955}]';
 
+	$.getJSON($SCRIPT_ROOT + '/_bounds', function(data) {
+		var inPath = [];
+        inPathSTR = data;
 
-	var inPath = JSON.parse(inPathSTR);
-	shoppingPins = JSON.parse(shoppingPinsSTR);
-	foodPins = JSON.parse(foodPinsSTR);
-	entertainmentPins = JSON.parse(entertainmentPinsSTR);
-		
+		inPath = JSON.parse(inPathSTR);	
 
-	for(i=0; i<inPath.length; i++){
-		setPATH.push(new google.maps.LatLng(inPath[i]));
-	};	
-	setPoly.setPath(setPATH);
+		shoppingPins = JSON.parse(shoppingPinsSTR);
+		foodPins = JSON.parse(foodPinsSTR);
+		entertainmentPins = JSON.parse(entertainmentPinsSTR);
 
-	generateGrid();
+		for(i=0; i<inPath.length; i++){
+			setPATH.push(new google.maps.LatLng(inPath[i]));
 
-	visibleVouchers();
+		}	
+		setPoly.setPath(setPATH);
+
+		generateGrid();
+		visibleVouchers();
+  	});
 
 }
 

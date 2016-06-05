@@ -26,6 +26,8 @@
 	<script src="../static/js/navigation_script.js"></script>
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWqrhj_Fani8INJwGsg1hYX4W0BDzkzWo&callback=initMap"
     async defer></script>
+
+    <script>$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};</script>
 </head>
 <body>
     <div data-role = "page" onClick = "window.location.href='#mainApp'">
