@@ -6,6 +6,11 @@ var bounds;
 var currentPos;
 
 //GRID
+var setROUTEmarkers = [];
+var setRoute = [];
+var routePoly;
+
+
 var setPATH = [];
 var setPoly;
 
@@ -13,6 +18,8 @@ var gridPathx = [];
 var gridPolyx;
 var gridPathy = [];
 var gridPolyy;
+
+var bounds;
 
 function loadSettings(){
 	var inPathSTR;
@@ -39,6 +46,15 @@ function initMap() {
 		center: {lat: -37.814205129899264, lng: 144.96328043060305},
 		zoom: 15
 	});
+
+    routePoly = new google.maps.Polyline({
+        geodesic: true,
+        strokeColor: "red",
+        strokeOpacity: 0.6,
+        strokeWeight: 4,
+        clickable: false
+    });
+    routePoly.setMap(map);
 
     setPoly = new google.maps.Polygon({
         geodesic: true,
@@ -84,6 +100,7 @@ function initMap() {
 	    position: {lat: -37.814205129899264, lng: 144.96328043060305}
     });
 
+   bounds = new google.maps.LatLngBounds();
 
     gridPolyy.setMap(map);
 
@@ -93,6 +110,24 @@ function initMap() {
 	    loadSettings();
 	});
 
+	window.setInterval(function(){
+    	updater();
+	}, 10);
+
+}
+
+
+
+function updater(){
+    setRoute = [];
+    for(i=0; i<setROUTEmarkers.length; i++){
+        var pos = setROUTEmarkers[i].position;
+        setRoute.push(pos);
+        bounds.extend(pos);
+    }
+    if(setROUTEmarkers.length>1){
+        routePoly.setPath(setRoute);
+    }
 }
 
 var positionOptions = {
@@ -141,18 +176,40 @@ function errorHandler(error)
 function showCurrentLocation(position)
 {        
     currentPos.setPosition({lat: position.coords.latitude, lng: position.coords.longitude});
-    map.setCenter(currentPos.position);
+    if(setROUTEmarkers.length==0){
+    	map.setCenter(currentPos.position);
+	}else{
+    	map.fitBounds(currentPos.position);		
+	}
 }
 
 
 function addLatLng(event) 
 {
-
+    setROUTEmarkers.push(
+      marker = new google.maps.Marker({
+        position: event.latLng,
+        map: map,
+        draggable: true
+      })
+    );
+    marker.addListener('click', byeMarker);
+    bounds.extend(event.latLng);
+    if(setROUTEmarkers.length>2){
+        map.fitBounds(bounds);
+    }
 }
 
 function byeMarker(event)
 {
-
+  for(i=0; i<setROUTEmarkers.length; i++){
+    if(setROUTEmarkers[i].position==event.latLng){
+      var marker = setROUTEmarkers[i];
+      marker.setMap(null);
+      marker = null;
+      setROUTEmarkers.splice(i,1);
+    }
+  }
 }
 
 
